@@ -12,6 +12,9 @@
     <div class="text-center mb-8">
        <img src="profile.jpg.png" alt="Pavan" class="w-24 h-24 rounded-full mx-auto mb-4 border-4 border-gray-800 shadow-xl object-cover">
         <h1 class="text-2xl font-bold">Pavan Kumar Battepati</h1>
+       <p class="text-blue-400 font-mono text-xs mt-2 uppercase tracking-widest">
+    🔥 Total Interest: <span id="click-count" class="font-bold">0</span>
+</p>
         <p class="text-gray-400 italic text-sm">I am a fresher python developer</p>
     </div>
 
@@ -30,25 +33,41 @@
 </a>
 
     </div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-    const supabaseUrl = 'https://nicpjkvnfiorcwitprna.supabase.co';
-    const supabaseKey = 'sb_publishable_ucZxPjbv09A5GHf5VDEq_A_TUsjnysi'; 
-    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+        // Setup your keys
+        const supabaseUrl = 'https://nicpjkvnfiorcwitprna.supabase.co';
+        const supabaseKey = 'sb_publishable_ucZxPjbv09A5GHf5VDEq_A_TUsjnysi'; 
+        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-    document.getElementById('hire-btn').addEventListener('click', async (e) => {
-        e.preventDefault();
-        
-        const { data, error } = await supabase
-            .from('clicks')
-            .insert([{ button_name: 'Hire Me' }]);
+        // Function to LOAD the count from the database
+        async function loadClickCount() {
+            const { count, error } = await supabaseClient
+                .from('clicks')
+                .select('*', { count: 'exact', head: true });
 
-        if (error) {
-            alert('Error: ' + error.message);
-        } else {
-            alert('Success! Click recorded in your Full Stack Database.');
+            if (!error) {
+                document.getElementById('click-count').innerText = count;
+            }
         }
-    });
-</script>
+
+        // Function to SAVE a new click
+        document.getElementById('hire-btn').addEventListener('click', async (e) => {
+            e.preventDefault();
+            
+            const { error } = await supabaseClient
+                .from('clicks')
+                .insert([{ button_name: 'Hire Me' }]);
+
+            if (error) {
+                alert('Database Error: ' + error.message);
+            } else {
+                alert('Success! Click recorded in your Full Stack Database.');
+                loadClickCount(); // Refresh the number on the screen immediately
+            }
+        });
+
+        // Run this when the page first opens
+        loadClickCount();
+    </script>
 </body>
 </html>
